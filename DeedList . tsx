@@ -1,0 +1,25 @@
+import React from 'react';
+
+const DeedList = ({ deeds, clients }: any) => (
+  <div className="bg-white rounded-2xl border overflow-hidden">
+    <table className="w-full text-left">
+      <thead className="bg-gray-50 text-xs font-bold uppercase">
+        <tr>
+          <th className="p-4">Akta</th>
+          <th className="p-4">Klien</th>
+          <th className="p-4">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {deeds.map((d: any) => (
+          <tr key={d.id} className="border-t">
+            <td className="p-4 font-bold">{d.category}</td>
+            <td className="p-4">{clients.find((c:any) => c.id === d.clientId)?.name}</td>
+            <td className="p-4 text-orange-600 font-bold">{d.status}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+export default DeedList;

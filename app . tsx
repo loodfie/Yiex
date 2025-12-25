@@ -1,0 +1,143 @@
+import React, { useState, useEffect } from 'react';
+import { HashRouter, Routes, Route, Link } from 'react-router-dom';
+import { 
+  LayoutDashboard, Users, FileText, PlusCircle, CreditCard, 
+  BrainCircuit, LogOut, Lock, ChevronRight, Menu, X
+} from 'lucide-react';
+
+// Mengimpor komponen-komponen halaman (Pastikan file-file ini ada di folder components)
+import Dashboard from './components/Dashboard';
+import ClientList from './components/ClientList';
+import DeedList from './components/DeedList';
+import NewDeedForm from './components/NewDeedForm';
+import AIAssistant from './components/AIAssistant';
+import PaymentList from './components/PaymentList';
+import { Client, DeedRecord, PaymentRecord, AppConfig, PaymentStatus } from './types';
+
+// Pengaturan awal aplikasi - Anda bisa mengganti nama kantor di sini
+const INITIAL_CONFIG: AppConfig = {
+  officeName: "Notaris & PPAT Galuh Hapsari, SH., M.Kn.",
+  showAiAssistant: true,
+  showPayments: true,
+  developerKey: "admin123",
+  staffPassword: "notaris2024" // KATA SANDI UNTUK MASUK
+};
+
+const App: React.FC = () => {
+  // State untuk menyimpan data aplikasi
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [deeds, setDeeds] = useState<DeedRecord[]>([]);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [config] = useState<AppConfig>(INITIAL_CONFIG);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Mengambil data yang tersimpan di memori browser (Local Storage) saat pertama buka
+  useEffect(() => {
+    const savedClients = localStorage.getItem('simanot_clients');
+    const savedDeeds = localStorage.getItem('simanot_deeds');
+    const savedPayments = localStorage.getItem('simanot_payments');
+    const sessionAuth = sessionStorage.getItem('simanot_auth');
+    
+    if (savedClients) setClients(JSON.parse(savedClients));
+    if (savedDeeds) setDeeds(JSON.parse(savedDeeds));
+    if (savedPayments) setPayments(JSON.parse(savedPayments));
+    if (sessionAuth === 'true') setIsAuthenticated(true);
+  }, []);
+
+  // Fungsi Proses Login
+  const handleLogin = (pass: string) => {
+    if (pass === config.staffPassword || pass === config.developerKey) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('simanot_auth', 'true');
+    } else {
+      alert("Kata sandi salah! Coba periksa kembali.");
+    }
+  };
+
+  // Fungsi Menambah Klien Baru
+  const handleAddClient = (c: Client) => {
+    const updated = [c, ...clients];
+    setClients(updated);
+    localStorage.setItem('simanot_clients', JSON.stringify(updated));
+  };
+
+  // Fungsi Menambah Akta Baru & Otomatis Membuat Tagihan Pembayaran
+  const handleAddDeed = (d: DeedRecord, initialPayment?: number) => {
+    const updatedDeeds = [d, ...deeds];
+    setDeeds(updatedDeeds);
+    localStorage.setItem('simanot_deeds', JSON.stringify(updatedDeeds));
+
+    // Otomatis buat data pembayaran/invoice untuk akta tersebut
+    const newPayment: PaymentRecord = {
+      id: crypto.randomUUID(),
+      deedId: d.id,
+      amount: initialPayment || 0,
+      paidAmount: 0,
+      status: PaymentStatus.UNPAID,
+      paymentLogs: []
+    };
+    const updatedPayments = [newPayment, ...payments];
+    setPayments(updatedPayments);
+    localStorage.setItem('simanot_payments', JSON.stringify(updatedPayments));
+  };
+
+  // Fungsi Memperbarui Status Pembayaran (Cicilan/Lunas)
+  const handleUpdatePayments = (updated: PaymentRecord[]) => {
+    setPayments(updated);
+    localStorage.setItem('simanot_payments', JSON.stringify(updated));
+  };
+
+  // 1. Tampilan LAYAR LOGIN (Muncul jika belum masuk)
+  if (!isAuthenticated) return (
+    <div className="fixed inset-0 bg-slate-900 flex items-center justify-center p-6">
+      <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center space-y-6">
+        <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg">
+          <Lock />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black text-slate-900">SIMANOT</h2>
+          <p className="text-sm text-slate-500">Sistem Manajemen Notaris & PPAT</p>
+        </div>
+        <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { 
+          e.preventDefault(); 
+          const formData = new FormData(e.currentTarget);
+          handleLogin(formData.get('password') as string); 
+        }} className="space-y-4 text-left">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kata Sandi Staf</label>
+          <input 
+            name="password" 
+            type="password" 
+            placeholder="••••••••" 
+            className="w-full p-4 bg-slate-50 border rounded-2xl text-center font-bold text-xl tracking-widest focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+            autoFocus 
+          />
+          <button className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-200">
+            Masuk Aplikasi <ChevronRight size={18}/>
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
+  // 2. Tampilan UTAMA APLIKASI (Setelah Berhasil Login)
+  return (
+    <HashRouter>
+      <div className="flex min-h-screen bg-slate-50">
+        
+        {/* SIDEBAR (Menu Samping) */}
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 text-white transition-all duration-300 fixed left-0 top-0 h-screen p-6 flex flex-col z-50`}>
+          <div className="flex items-center justify-between mb-10 overflow-hidden whitespace-nowrap">
+            {isSidebarOpen && (
+              <div>
+                <h1 className="text-xl font-black tracking-tight">SIMANOT</h1>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest leading-tight opacity-70">Manajemen Kantor</p>
+              </div>
+            )}
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-slate-800 rounded-lg">
+              {isSidebarOpen ? <X size={20}/> : <Menu size={20}/>}
+            </button>
+          </div>
+
+          <nav className="flex-1 space-y-2 text-sm font-medium overflow-hidden whitespace-nowrap">
+            <Link to="/" className

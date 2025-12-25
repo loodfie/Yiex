@@ -1,0 +1,28 @@
+import React, { useState } from 'react';
+import { DeedType, DeedCategory, ProcessStatus } from '../types';
+
+const NewDeedForm = ({ clients, onAddDeed }: any) => {
+  const [formData, setFormData] = useState({ clientId: '', category: DeedCategory.AJB, objectDescription: '' });
+  const [amount, setAmount] = useState(0);
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    onAddDeed({ ...formData, type: DeedType.NOTARY, status: ProcessStatus.CONSULTATION }, amount);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl border space-y-4 max-w-lg">
+      <select className="w-full p-3 border rounded-xl" onChange={e => setFormData({...formData, clientId: e.target.value})}>
+        <option>Pilih Klien</option>
+        {clients.map((c:any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+      <select className="w-full p-3 border rounded-xl" onChange={e => setFormData({...formData, category: e.target.value as any})}>
+        {Object.values(DeedCategory).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+      </select>
+      <textarea className="w-full p-3 border rounded-xl" placeholder="Deskripsi Objek" onChange={e => setFormData({...formData, objectDescription: e.target.value})} />
+      <input type="number" className="w-full p-3 border rounded-xl" placeholder="Biaya (Rp)" onChange={e => setAmount(Number(e.target.value))} />
+      <button className="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Simpan Akta</button>
+    </form>
+  );
+};
+export default NewDeedForm;

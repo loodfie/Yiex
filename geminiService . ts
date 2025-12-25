@@ -1,0 +1,31 @@
+import { GoogleGenAI, Type } from "@google/genai";
+
+export const analyzeDraft = async (text: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Analisis teks instruksi ini dan kembalikan JSON: ${text}`,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          summary: { type: Type.STRING },
+          deedCategory: { type: Type.STRING },
+          objectLocation: { type: Type.STRING }
+        },
+        required: ["summary", "deedCategory"]
+      }
+    }
+  });
+  return JSON.parse(response.text || '{}');
+};
+
+export const suggestRequirements = async (category: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Daftar dokumen persyaratan untuk: ${category} di Notaris/PPAT Indonesia.`
+  });
+  return response.text;
+};

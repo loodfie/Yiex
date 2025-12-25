@@ -1,0 +1,18 @@
+import React, { useState } from 'react';
+import { suggestRequirements } from '../services/geminiService';
+
+const AIAssistant = () => {
+  const [result, setResult] = useState('');
+  const handleAsk = async () => {
+    const res = await suggestRequirements("Akta Jual Beli");
+    setResult(res || '');
+  };
+  return (
+    <div className="bg-indigo-50 p-8 rounded-2xl border-indigo-100 border">
+      <h3 className="text-xl font-bold text-indigo-900 mb-4">Tanya AI Persyaratan</h3>
+      <button onClick={handleAsk} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold">Cek Syarat AJB</button>
+      <div className="mt-6 bg-white p-4 rounded-xl border whitespace-pre-wrap text-sm">{result}</div>
+    </div>
+  );
+};
+export default AIAssistant;

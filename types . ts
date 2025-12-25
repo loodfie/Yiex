@@ -1,0 +1,36 @@
+export enum DeedType { NOTARY = 'Notaris', PPAT = 'PPAT' }
+export enum DeedCategory {
+  AJB = 'Akta Jual Beli',
+  APHT = 'Akta Pemberian Hak Tanggungan',
+  HIBAH = 'Hibah',
+  SKMHT = 'SKMHT',
+  WASIAT = 'Wasiat',
+  PENDIRIAN_PT = 'Pendirian PT/CV',
+  KUASA = 'Surat Korespondensi',
+  LAINNYA = 'Lainnya'
+}
+export enum ProcessStatus {
+  CONSULTATION = 'Konsultasi',
+  COLLECTING_DOCS = 'Pengumpulan Berkas',
+  DRAFTING = 'Drafting / Pemberkasan',
+  VILLAGE_VALIDATION = 'Pengesahan Desa',
+  DISTRICT_VALIDATION = 'Pengesahan Kecamatan',
+  BPHTB_VALIDATION = 'Validasi BPHTB',
+  PPH_VALIDATION = 'Validasi PPh',
+  DEED_NUMBERING = 'Pengambilan Nomor Akta',
+  BPN_REGISTRATION = 'Pendaftaran BPN',
+  COMPLETED = 'Selesai',
+  ARCHIVED = 'Diarsipkan'
+}
+export enum PaymentStatus { UNPAID = 'Belum Bayar', PARTIAL = 'Cicilan', PAID = 'Lunas' }
+export interface Client { id: string; name: string; nik: string; phone: string; address: string; }
+export interface DeedRecord {
+  id: string; clientId: string; type: DeedType; category: DeedCategory;
+  objectDescription: string; status: ProcessStatus; createdAt: string; updatedAt: string;
+  statusLogs: any[];
+}
+export interface PaymentRecord {
+  id: string; deedId: string; amount: number; paidAmount: number;
+  status: PaymentStatus; paymentLogs: any[];
+}
+export interface AppConfig { officeName: string; staffPassword: string; developerKey: string; }

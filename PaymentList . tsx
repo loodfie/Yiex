@@ -1,0 +1,27 @@
+import React from 'react';
+
+const PaymentList = ({ payments, deeds, clients }: any) => (
+  <div className="bg-white rounded-2xl border overflow-hidden">
+    <table className="w-full text-left">
+      <thead className="bg-gray-50">
+        <tr>
+          <th className="p-4">Klien</th>
+          <th className="p-4">Tagihan</th>
+          <th className="p-4">Terbayar</th>
+          <th className="p-4">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {payments.map((p: any) => (
+          <tr key={p.id} className="border-t">
+            <td className="p-4 font-bold">{clients.find((c:any) => deeds.find((d:any)=>d.id===p.deedId)?.clientId === c.id)?.name}</td>
+            <td className="p-4">Rp {p.amount.toLocaleString()}</td>
+            <td className="p-4 text-green-600 font-bold">Rp {p.paidAmount.toLocaleString()}</td>
+            <td className="p-4 uppercase text-xs font-black">{p.status}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+export default PaymentList;
